@@ -54,13 +54,17 @@ if [ -z "${RDP_IP}" ]; then
 		echo '  sudo usermod -a -G kvm $(whoami)'
 		exit
 	fi
-	if [ -z "$(virsh list |grep RDPWindows)" ]; then
+	if [ -z "$(virsh -c qemu:///system list |grep RDPWindows)" ]; then
 		echo "RDPWindows is not running, run:"
-		echo "  virsh start RDPWindows"
+		echo "  virsh -c qemu:///system start RDPWindows"
 		exit
 	fi
-	RDP_IP=$(virsh net-dhcp-leases default |grep RDPWindows |awk '{print $5}')
+	RDP_IP=$(virsh -c qemu:///system net-dhcp-leases default |grep RDPWindows |awk '{print $5}')
 	RDP_IP=${RDP_IP%%\/*}
+fi
+
+if [ "${RDP_IP}" = "" ]; then
+  RDP_IP=rdpwindows
 fi
 
 dprint "1:${1}"
